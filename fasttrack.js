@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== Export PDF ====================
-    // ==================== Export PDF (ปรับใหม่สำหรับมือถือ) ====================
+    // ==================== Export PDF (เวอร์ชันใหม่ล่าสุด - มือถือเหมือนคอม) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) {
@@ -144,36 +144,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const btn = document.getElementById("saveBtn");
-    const originalBtnHTML = btn.innerHTML;
+    const originalHTML = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = `กำลังสร้าง PDF... <span style="animation:spin 1s linear infinite">⟳</span>`;
 
-    // ซ่อนองค์ประกอบที่ไม่ต้องการใน PDF
+    // ซ่อนส่วนที่ไม่ต้องการใน PDF
     document.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
 
     const page = document.querySelector(".page");
-
-    // === สำคัญมากสำหรับมือถือ ===
-    const originalPageStyle = page.style.cssText;        // เก็บสไตล์เดิม
-    const originalWidth = page.style.width;
-
-    // บังคับให้เป็นขนาด A4 ก่อนจับภาพ (ไม่ว่าเปิดบนมือถือหรือคอม)
-    page.style.width = "21cm";
-    page.style.minHeight = "29.7cm";
-    page.style.padding = "2.8cm 2.2cm 2cm";
-    page.style.margin = "0";
-    page.style.boxShadow = "none";
+    const originalStyle = page.style.cssText;   // เก็บสไตล์เดิมไว้
 
     try {
+      // === บังคับให้เป็น A4 จริง ๆ (สำคัญสำหรับมือถือ) ===
+      page.style.cssText = `
+        width: 21cm !important;
+        min-height: 29.7cm !important;
+        padding: 2.8cm 2.2cm 2cm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+      `;
+
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
-      });
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
       const canvasImg = await html2canvas(page, {
-        scale: 3,                    // ความคมชัดสูง (มือถือก็คม)
+        scale: 3.5,           // ความคมชัดสูงมาก (มือถือก็คมเหมือนคอม)
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
@@ -187,15 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
-
       pdf.save("ใบสมัคร_Fast_Track.pdf");
 
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
-        text: "ไฟล์ PDF ถูกบันทึกแล้ว (พร้อมใช้งานบนมือถือ)",
+        text: "PDF ออกมาเหมือนบนคอมพิวเตอร์แล้วครับ",
         confirmButtonColor: "#1a5276",
-        timer: 2200
+        timer: 2000
       }).then(() => location.reload());
 
     } catch (err) {
@@ -203,17 +198,15 @@ document.addEventListener("DOMContentLoaded", () => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่อีกครั้ง",
+        text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่",
         confirmButtonColor: "#c0392b"
       });
     } finally {
-      // คืนค่ากลับเป็นปกติ (สำคัญ!)
-      page.style.cssText = originalPageStyle;
-      if (originalWidth) page.style.width = originalWidth;
-
+      // คืนค่าหน้าเว็บให้กลับเป็นปกติ (มือถือยังใช้งานได้ปกติ)
+      page.style.cssText = originalStyle;
       document.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "");
       btn.disabled = false;
-      btn.innerHTML = originalBtnHTML;
+      btn.innerHTML = originalHTML;
     }
   };
 
