@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== Export PDF ====================
+    // ==================== Export PDF (ปรับใหม่สำหรับมือถือ) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) {
@@ -143,12 +144,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const btn = document.getElementById("saveBtn");
-    const originalText = btn.innerHTML;
+    const originalBtnHTML = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = `กำลังสร้าง PDF... <span style="animation:spin 1s linear infinite">⟳</span>`;
 
-    // Hide unnecessary elements for PDF
+    // ซ่อนองค์ประกอบที่ไม่ต้องการใน PDF
     document.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
+
+    const page = document.querySelector(".page");
+
+    // === สำคัญมากสำหรับมือถือ ===
+    const originalPageStyle = page.style.cssText;        // เก็บสไตล์เดิม
+    const originalWidth = page.style.width;
+
+    // บังคับให้เป็นขนาด A4 ก่อนจับภาพ (ไม่ว่าเปิดบนมือถือหรือคอม)
+    page.style.width = "21cm";
+    page.style.minHeight = "29.7cm";
+    page.style.padding = "2.8cm 2.2cm 2cm";
+    page.style.margin = "0";
+    page.style.boxShadow = "none";
 
     try {
       const { jsPDF } = window.jspdf;
@@ -158,29 +172,30 @@ document.addEventListener("DOMContentLoaded", () => {
         format: "a4"
       });
 
-      const page = document.querySelector(".page");
       const canvasImg = await html2canvas(page, {
-        scale: 3,                    // ความคมชัดสูง
+        scale: 3,                    // ความคมชัดสูง (มือถือก็คม)
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
         width: page.offsetWidth,
-        height: page.offsetHeight
+        height: page.offsetHeight,
+        allowTaint: true
       });
 
       const imgData = canvasImg.toDataURL("image/jpeg", 0.98);
       const pdfWidth = 210;
       const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
 
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
+
       pdf.save("ใบสมัคร_Fast_Track.pdf");
 
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
-        text: "ไฟล์ PDF ถูกบันทึกแล้ว",
+        text: "ไฟล์ PDF ถูกบันทึกแล้ว (พร้อมใช้งานบนมือถือ)",
         confirmButtonColor: "#1a5276",
-        timer: 2000
+        timer: 2200
       }).then(() => location.reload());
 
     } catch (err) {
@@ -192,9 +207,13 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonColor: "#c0392b"
       });
     } finally {
+      // คืนค่ากลับเป็นปกติ (สำคัญ!)
+      page.style.cssText = originalPageStyle;
+      if (originalWidth) page.style.width = originalWidth;
+
       document.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "");
       btn.disabled = false;
-      btn.innerHTML = originalText;
+      btn.innerHTML = originalBtnHTML;
     }
   };
 
