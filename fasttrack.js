@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== Export PDF ====================
-    // ==================== Export PDF (เวอร์ชันใหม่ล่าสุด - มือถือเหมือนคอม) ====================
+  // ==================== Export PDF (ไม่กระตุกทั้งคอมและมือถือ) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) {
@@ -148,33 +148,38 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.disabled = true;
     btn.innerHTML = `กำลังสร้าง PDF... <span style="animation:spin 1s linear infinite">⟳</span>`;
 
-    // ซ่อนส่วนที่ไม่ต้องการใน PDF
-    document.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
-
-    const page = document.querySelector(".page");
-    const originalStyle = page.style.cssText;   // เก็บสไตล์เดิมไว้
+    const originalPage = document.querySelector(".page");
 
     try {
-      // === บังคับให้เป็น A4 จริง ๆ (สำคัญสำหรับมือถือ) ===
-      page.style.cssText = `
-        width: 21cm !important;
-        min-height: 29.7cm !important;
-        padding: 2.8cm 2.2cm 2cm !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        background: #fff !important;
-      `;
+      // === สร้าง Clone เพื่อไม่ให้หน้าเดิมกระตุกเลย ===
+      const clone = originalPage.cloneNode(true);
+      
+      // ตั้งค่าคลอนให้เป็นขนาด A4 จริง
+      clone.style.position = "absolute";
+      clone.style.left = "-99999px";
+      clone.style.top = "0";
+      clone.style.width = "21cm";
+      clone.style.minHeight = "29.7cm";
+      clone.style.padding = "2.8cm 2.2cm 2cm";
+      clone.style.margin = "0";
+      clone.style.boxShadow = "none";
+      clone.style.background = "#fff";
+
+      // ซ่อนเฉพาะใน clone (หน้าเดิมไม่ถูกแตะ)
+      clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => {
+        el.style.display = "none";
+      });
+
+      document.body.appendChild(clone);
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-      const canvasImg = await html2canvas(page, {
-        scale: 3.5,           // ความคมชัดสูงมาก (มือถือก็คมเหมือนคอม)
+      const canvasImg = await html2canvas(clone, {
+        scale: 3.5,           // ความคมชัดสูงมาก
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
-        width: page.offsetWidth,
-        height: page.offsetHeight,
         allowTaint: true
       });
 
@@ -183,14 +188,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
-      pdf.save("ใบสมัคร_Fast_Track.pdf");
+      pdf.save("ใบสมัคร Fast Track.pdf");
 
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
-        text: "PDF ออกมาเหมือนบนคอมพิวเตอร์แล้วครับ",
+        text: "PDF ออกมาเหมือนคอมพิวเตอร์ (ไม่กระตุกแล้ว)",
         confirmButtonColor: "#1a5276",
-        timer: 2000
+        timer: 2200
       }).then(() => location.reload());
 
     } catch (err) {
@@ -202,9 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonColor: "#c0392b"
       });
     } finally {
-      // คืนค่าหน้าเว็บให้กลับเป็นปกติ (มือถือยังใช้งานได้ปกติ)
-      page.style.cssText = originalStyle;
-      document.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "");
+      // ลบ clone และคืนปุ่มเป็นปกติ
+      const cloneEl = document.querySelector(".page[style*='left: -99999px']");
+      if (cloneEl) cloneEl.remove();
+      
       btn.disabled = false;
       btn.innerHTML = originalHTML;
     }
