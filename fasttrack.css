@@ -1,0 +1,495 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "TH Sarabun New", "Sarabun", serif;
+  background-color: #ededed;
+}
+
+h1 {
+  font-size: 1.1rem;
+  text-align: center;
+  font-weight: normal;
+}
+
+p,
+label,
+input,
+span {
+  font-size: 1rem;
+  font-weight: lighter;
+}
+
+input {
+  width: 100%;
+  border: none;
+  border-bottom: 1.8px dotted #000;
+  background: transparent;
+  font-family: inherit;
+  text-align: center;
+}
+
+input:focus {
+  outline: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  border: none;
+}
+
+/* LAYOUT */
+.page {
+  width: 21cm;
+  min-height: 29.7cm;
+  margin: 25px auto;
+  padding: 2.8cm 2.2cm 2cm;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  position: relative;
+}
+
+.divider {
+  text-align: center;
+  margin: 0.2cm 0 0.3cm;
+  font-weight: normal;
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1cm;
+  margin-bottom: 0.2cm;
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1;
+  position: relative;
+  min-width: 1cm;
+}
+
+/* SECTION TITLES */
+.section-title {
+  font-weight: normal;
+  margin-bottom: 0.2cm;
+  font-size: 1rem;
+}
+
+.subsection-title {
+  font-weight: normal;
+  font-size: 1rem;
+  margin-bottom: 0.15cm;
+}
+
+/* RADIO / CHECKBOX */
+.radio-group {
+  display: flex;
+  gap: 5px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.radio input[type="radio"] {
+  display: none;
+}
+
+/* checkmark วงกลม (radio) */
+.checkmark {
+  width: 0.45cm;
+  height: 0.45cm;
+  border: 1px solid #000;
+  display: inline-block;
+  margin-right: 0.15cm;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 0.1cm;
+  top: 0.05cm;
+  width: 0.15cm;
+  height: 0.3cm;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="radio"]:checked + .checkmark::after,
+input[type="radio"]:checked ~ .checkmark::after {
+  display: block;
+}
+
+/* checkmark สี่เหลี่ยม (checkbox) */
+.checkmark-sq {
+  width: 0.45cm;
+  height: 0.45cm;
+  border: 1px solid #000;
+  display: inline-block;
+  margin-right: 0.15cm;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.checkmark-sq::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 0.1cm;
+  top: 0.05cm;
+  width: 0.15cm;
+  height: 0.3cm;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:checked + .checkmark-sq::after {
+  display: block;
+}
+
+/* checkbox label แบบ inline */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.1cm;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 0.45cm;
+  height: 0.45cm;
+  cursor: pointer;
+}
+
+/* checkbox/radio แบบ block (ขึ้นบรรทัด) */
+.check-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1cm;
+  margin-bottom: 0.15cm;
+  /* flex-wrap: nowrap; */
+}
+
+.checkbox-block {
+  display: flex;
+  align-items: center;
+  gap: 0.1cm;
+  cursor: pointer;
+  font-size: 1rem;
+  white-space: normal;
+}
+
+.checkbox-block input[type="radio"],
+.checkbox-block input[type="checkbox"] {
+  display: none;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+/* INPUT FOCUS BAR */
+.bar::before,
+.bar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: #4a89dc;
+  transition: 0.2s;
+}
+
+.bar::before {
+  left: 50%;
+}
+.bar::after {
+  right: 50%;
+}
+
+input:focus ~ .bar::before,
+input:focus ~ .bar::after {
+  width: 50%;
+}
+
+/* SIGNATURE SECTION */
+.signature-section {
+  margin-top: 0.5cm;
+  margin-left: 5cm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1cm;
+}
+
+.sig-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.2cm;
+  white-space: nowrap;
+}
+
+.sig-label {
+  font-size: 1rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sig-box {
+  position: relative;
+  width: 6cm;
+  border-bottom: 1.8px dotted #000;
+  min-height: 1.1cm;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  background: transparent;
+}
+
+.sig-box:hover {
+  border-bottom-color: #4a89dc;
+}
+
+.sig-placeholder {
+  font-size: 0.75rem;
+  color: #aaa;
+  letter-spacing: 0.05em;
+  user-select: none;
+  padding-bottom: 2px;
+}
+
+.sig-box img {
+  max-width: 100%;
+  max-height: 1.1cm;
+  object-fit: contain;
+  display: block;
+}
+
+.sig-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+  margin-left: 1cm;
+}
+
+.sig-name-row .paren {
+  font-size: 1rem;
+}
+
+.name-input-wrap {
+  width: 5.5cm;
+  position: relative;
+}
+
+.name-input-wrap input {
+  text-align: center;
+  border-bottom: 1.8px dotted #000;
+  width: 100%;
+}
+
+/* วันที่ใต้ลายเซ็น */
+.sig-date-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1cm;
+  margin-left: 1cm;
+  font-size: 1rem;
+}
+
+.date-input-wrap {
+  width: 1.4cm;
+  position: relative;
+}
+
+.date-input-wrap input {
+  text-align: center;
+  border-bottom: 1.8px dotted #000;
+  width: 100%;
+}
+
+/* SIGNATURE MODAL */
+.sig-modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  align-items: center;
+  justify-content: center;
+}
+
+.sig-modal-overlay.open {
+  display: flex;
+}
+
+.sig-modal {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 24px 28px 20px;
+  width: 420px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+}
+
+.sig-modal h3 {
+  font-size: 1rem;
+  font-family: inherit;
+  margin: 0 0 12px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
+#signatureCanvas {
+  border: 1px solid #bbb;
+  background: #fafafa;
+  touch-action: none;
+  display: block;
+  margin: 0 auto;
+  cursor: crosshair;
+}
+
+.sig-modal-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-sig {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 4px 18px;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  cursor: pointer;
+  background: #f5f5f5;
+  transition: background 0.15s;
+}
+
+.btn-sig:hover {
+  background: #e8e8e8;
+}
+.btn-sig.confirm {
+  background: #1a5276;
+  color: #fff;
+  border-color: #1a5276;
+}
+.btn-sig.confirm:hover {
+  background: #154360;
+}
+.btn-sig.cancel {
+  background: #c0392b;
+  color: #fff;
+  border-color: #c0392b;
+}
+.btn-sig.cancel:hover {
+  background: #a93226;
+}
+
+/* SAVE BUTTON */
+#saveBtn {
+  position: fixed;
+  bottom: 2cm;
+  right: 2cm;
+  z-index: 1000;
+  font-family: "TH Sarabun New", "Sarabun", serif;
+  font-size: 1rem;
+  padding: 0.35cm 0.8cm;
+  background: #1a5276;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition:
+    background 0.15s,
+    transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#saveBtn:hover {
+  background: #154360;
+  transform: translateY(-1px);
+}
+#saveBtn:active {
+  transform: translateY(0);
+}
+#saveBtn:disabled {
+  background: #888;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* PRINT */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: none;
+  }
+
+  #saveBtn,
+  .sig-modal-overlay,
+  .sig-placeholder,
+  .bar {
+    display: none !important;
+  }
+
+  .page {
+    margin: 0 !important;
+    width: 21cm !important;
+    min-height: 29.7cm !important;
+    padding: 2.54cm 2cm !important;
+    box-shadow: none !important;
+  }
+
+  .sig-box {
+    cursor: default !important;
+    border-bottom-color: #000 !important;
+  }
+}
+/* Mobile Responsive (ปรับใหม่ทั้งหมด) */
+@media screen and (max-width: 768px) {
+  .page {
+    width: 100% !important;
+    min-height: auto;
+    margin: 0;
+    padding: 1.5rem 1rem 6rem;
+    box-shadow: none;
+  }
+  
+  #saveBtn {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    border-radius: 0;
+    padding: 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .sig-box { width: 100% !important; max-width: none; }
+  .signature-section { margin-left: 0 !important; }
+}
