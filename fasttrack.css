@@ -8,6 +8,9 @@ body {
   font-family: "TH Sarabun New", "Sarabun", serif;
   background-color: #ededed;
 }
+body.modal-open {
+  overflow: hidden;
+}
 
 h1 {
   font-size: 1.1rem;
@@ -49,7 +52,7 @@ input[type="radio"] {
   margin: 25px auto;
   padding: 2.8cm 2.2cm 2cm;
   background: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   position: relative;
 }
 
@@ -482,15 +485,21 @@ input:focus ~ .bar::after {
 
   #saveBtn {
     position: fixed;
+    justify-content: center;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100% !important;
     border-radius: 0;
     padding: 1.2rem;
-    font-size: 1.15rem;
+    font-size: 1rem;
     z-index: 9999;
   }
-  .sig-box { width: 100% !important; max-width: 100%; }
-  .signature-section { margin-left: 0 !important; }
+  .sig-box {
+    width: 100% !important;
+    max-width: 100%;
+  }
+  .signature-section {
+    margin-left: 0 !important;
+  }
 }

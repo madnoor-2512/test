@@ -1,11 +1,46 @@
-// fasttrack.js (ปรับปรุงใหม่)
 document.addEventListener("DOMContentLoaded", () => {
+  const radios = document.querySelectorAll('input[name="title"]');
+  const otherInput = document.getElementById("titleOtherText");
+
+  radios.forEach((r) => {
+    r.addEventListener("change", () => {
+      if (document.getElementById("titleOtherRadio").checked) {
+        otherInput.disabled = false;
+        otherInput.required = true;
+      } else {
+        otherInput.disabled = true;
+        otherInput.required = false;
+        otherInput.value = "";
+      }
+    });
+  });
+
+  document.getElementById("phone").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+  });
+
+  const checkboxes = document.querySelectorAll('input[name="contact"]');
+  const contactInput = document.getElementById("contactId");
+  checkboxes.forEach((cb) => {
+    cb.addEventListener("change", () => {
+      const anyChecked = [...checkboxes].some((c) => c.checked);
+
+      contactInput.disabled = !anyChecked;
+      contactInput.required = anyChecked;
+
+      if (!anyChecked) {
+        contactInput.value = "";
+      }
+    });
+  });
 
   // ==================== Custom Checkmarks & Radios ====================
   function initCustomMarks() {
-    const allInputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-    
-    allInputs.forEach(input => {
+    const allInputs = document.querySelectorAll(
+      'input[type="radio"], input[type="checkbox"]',
+    );
+
+    allInputs.forEach((input) => {
       const mark = input.nextElementSibling;
       if (!mark) return;
 
@@ -15,10 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
       input.addEventListener("change", () => {
         // Radio group
         if (input.type === "radio") {
-          document.querySelectorAll(`input[name="${input.name}"]`).forEach(radio => {
-            const rMark = radio.nextElementSibling;
-            if (rMark) rMark.classList.remove("checked");
-          });
+          document
+            .querySelectorAll(`input[name="${input.name}"]`)
+            .forEach((radio) => {
+              const rMark = radio.nextElementSibling;
+              if (rMark) rMark.classList.remove("checked");
+            });
         }
         // Checkbox / Radio toggle
         mark.classList.toggle("checked", input.checked);
@@ -44,9 +81,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!other) othInput.value = "";
   }
 
-  document.getElementById("regComplete").addEventListener("change", toggleRegInputs);
-  document.getElementById("regIncomplete").addEventListener("change", toggleRegInputs);
-  document.getElementById("regOther").addEventListener("change", toggleRegInputs);
+  document
+    .getElementById("regComplete")
+    .addEventListener("change", toggleRegInputs);
+  document
+    .getElementById("regIncomplete")
+    .addEventListener("change", toggleRegInputs);
+  document
+    .getElementById("regOther")
+    .addEventListener("change", toggleRegInputs);
   toggleRegInputs(); // Initial call
 
   // ==================== Signature Canvas ====================
@@ -61,9 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
-    return { 
+    return {
       x: (e.clientX || e.touches[0].clientX) - rect.left,
-      y: (e.clientY || e.touches[0].clientY) - rect.top 
+      y: (e.clientY || e.touches[0].clientY) - rect.top,
     };
   }
 
@@ -110,12 +153,12 @@ document.addEventListener("DOMContentLoaded", () => {
   window.saveSignature = () => {
     const dataURL = canvas.toDataURL("image/png", 1.0);
     document.getElementById("signatureData").value = dataURL;
-    
+
     const img = document.getElementById("signaturePrev");
     img.src = dataURL;
     img.style.display = "block";
     document.getElementById("placeholderText").style.display = "none";
-    
+
     closeSignatureModal();
   };
 
@@ -125,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== Export PDF ====================
-  // ==================== Export PDF (ไม่กระตุกทั้งคอมและมือถือ) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) {
@@ -151,10 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalPage = document.querySelector(".page");
 
     try {
-      // === สร้าง Clone เพื่อไม่ให้หน้าเดิมกระตุกเลย ===
       const clone = originalPage.cloneNode(true);
-      
-      // ตั้งค่าคลอนให้เป็นขนาด A4 จริง
+
       clone.style.position = "absolute";
       clone.style.left = "-99999px";
       clone.style.top = "0";
@@ -165,22 +205,26 @@ document.addEventListener("DOMContentLoaded", () => {
       clone.style.boxShadow = "none";
       clone.style.background = "#fff";
 
-      // ซ่อนเฉพาะใน clone (หน้าเดิมไม่ถูกแตะ)
-      clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => {
+      // ซ่อน clone
+      clone.querySelectorAll(".sig-placeholder, .bar").forEach((el) => {
         el.style.display = "none";
       });
 
       document.body.appendChild(clone);
 
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
 
       const canvasImg = await html2canvas(clone, {
-        scale: 3.5,           // ความคมชัดสูงมาก
+        scale: 3.5,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
-        allowTaint: true
+        allowTaint: true,
       });
 
       const imgData = canvasImg.toDataURL("image/jpeg", 0.98);
@@ -193,24 +237,22 @@ document.addEventListener("DOMContentLoaded", () => {
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
-        text: "PDF ออกมาเหมือนคอมพิวเตอร์ (ไม่กระตุกแล้ว)",
+        text: "บันทึกเรียบร้อย",
         confirmButtonColor: "#1a5276",
-        timer: 2200
+        timer: 2200,
       }).then(() => location.reload());
-
     } catch (err) {
       console.error(err);
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่",
-        confirmButtonColor: "#c0392b"
+        confirmButtonColor: "#c0392b",
       });
     } finally {
-      // ลบ clone และคืนปุ่มเป็นปกติ
       const cloneEl = document.querySelector(".page[style*='left: -99999px']");
       if (cloneEl) cloneEl.remove();
-      
+
       btn.disabled = false;
       btn.innerHTML = originalHTML;
     }
