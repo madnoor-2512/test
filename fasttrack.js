@@ -168,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== Export PDF ====================
+    // ==================== Export PDF (ปรับใหม่สำหรับมือถือ - ไม่กระตุก + เหมือนคอม) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) {
@@ -193,20 +194,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalPage = document.querySelector(".page");
 
     try {
+      // สร้าง Clone เพื่อไม่ให้หน้าจอเดิมกระตุกหรือเปลี่ยนแปลง
       const clone = originalPage.cloneNode(true);
 
-      clone.style.position = "absolute";
-      clone.style.left = "-99999px";
-      clone.style.top = "0";
-      clone.style.width = "21cm";
-      clone.style.minHeight = "29.7cm";
-      clone.style.padding = "2.8cm 2.2cm 2cm";
-      clone.style.margin = "0";
-      clone.style.boxShadow = "none";
-      clone.style.background = "#fff";
+      // Force ให้เป็นขนาด A4 จริง (สำคัญมากสำหรับมือถือ)
+      clone.style.cssText = `
+        position: absolute !important;
+        left: -99999px !important;
+        top: 0 !important;
+        width: 21cm !important;
+        min-height: 29.7cm !important;
+        padding: 2.8cm 2.2cm 2cm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        font-family: "TH Sarabun New", "Sarabun", serif !important;
+      `;
 
-      // ซ่อน clone
-      clone.querySelectorAll(".sig-placeholder, .bar").forEach((el) => {
+      // ซ่อนเฉพาะใน clone (หน้าเดิมไม่ถูกแตะ)
+      clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => {
         el.style.display = "none";
       });
 
@@ -220,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const canvasImg = await html2canvas(clone, {
-        scale: 3.5,
+        scale: 3.5,                    // ความคมชัดสูง (มือถือก็ชัด)
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
@@ -232,15 +238,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
-      pdf.save("ใบสมัคร Fast Track.pdf");
+      pdf.save("ใบสมัคร_Fast_Track.pdf");
 
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
-        text: "บันทึกเรียบร้อย",
+        text: "PDF ออกมาเหมือนบนคอมพิวเตอร์แล้ว",
         confirmButtonColor: "#1a5276",
-        timer: 2200,
+        timer: 2000,
       }).then(() => location.reload());
+
     } catch (err) {
       console.error(err);
       Swal.fire({
@@ -250,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonColor: "#c0392b",
       });
     } finally {
+      // ลบ clone และคืนปุ่มเป็นปกติ
       const cloneEl = document.querySelector(".page[style*='left: -99999px']");
       if (cloneEl) cloneEl.remove();
 
