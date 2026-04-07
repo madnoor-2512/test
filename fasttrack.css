@@ -453,15 +453,17 @@ input:focus ~ .bar::after {
   margin: 0;
 }
 
+/* ====================== PRINT STYLE (สำคัญสำหรับ iPhone) ====================== */
+/* ==================== PRINT STYLE ==================== */
 @media print {
-  body {
-    background: none;
-  }
+  body { background: none !important; }
 
   #saveBtn,
   .sig-modal-overlay,
   .sig-placeholder,
-  .bar {
+  .bar,
+  button,
+  .sig-modal {
     display: none !important;
   }
 
@@ -471,41 +473,40 @@ input:focus ~ .bar::after {
     min-height: 29.7cm !important;
     padding: 2.54cm 2cm !important;
     box-shadow: none !important;
+    background: white !important;
   }
 
   .sig-box {
     cursor: default !important;
     border-bottom-color: #000 !important;
   }
+
+  #signaturePrev {
+    max-height: 1.2cm !important;
+  }
 }
+
+/* Mobile Responsive */
 @media screen and (max-width: 768px) {
   .page {
     width: 100% !important;
     min-height: auto !important;
     margin: 0 !important;
-    padding: 5rem 1rem 7rem 1rem !important;
+    padding: 1.5rem 1rem 7rem 1rem !important;
     box-shadow: none !important;
   }
 
   #saveBtn {
     position: fixed;
-    justify-content: center;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100% !important;
     border-radius: 0;
     padding: 1.2rem;
-    font-size: 1rem;
+    font-size: 1.1rem;
     z-index: 9999;
   }
 
-  .sig-box {
-    width: 100% !important;
-    max-width: 100%;
-  }
-
-  .signature-section {
-    margin-left: 0 !important;
-  }
+  .sig-box, .signature-section { margin-left: 0 !important; width: 100% !important; }
 }

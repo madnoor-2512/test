@@ -167,127 +167,86 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.id === "signatureModal") closeSignatureModal();
   });
 
-  // ==================== Export PDF ====================
+    // ==================== Export PDF (A4 clone — works on mobile & desktop) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
+    if (!form.checkValidity()) { form.reportValidity(); return; }
 
     if (!document.getElementById("signatureData").value) {
-      Swal.fire({
-        icon: "warning",
-        title: "กรุณาลงนาม",
-        text: "โปรดลงลายมือชื่อก่อนบันทึก PDF",
-        confirmButtonColor: "#1a5276",
-      });
+      Swal.fire({ icon: "warning", title: "กรุณาลงนาม", text: "โปรดลงลายมือชื่อก่อนบันทึก PDF", confirmButtonColor: "#1a5276" });
       return;
     }
 
     const btn = document.getElementById("saveBtn");
-    const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = `กำลังสร้าง PDF... <span style="animation:spin 1s linear infinite">⟳</span>`;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> กำลังสร้าง PDF...`;
+    btn.style.display = "none";
 
-    const originalPage = document.querySelector(".page");
+    // A4 @ 96dpi = 794px — render ขนาดนี้เสมอไม่ว่าจะดูบนอะไร
+    const A4_PX   = 794;
+    const A4_MM_W = 210;
+    const A4_MM_H = 297;
+
+    // off-screen container ขนาด A4 คงที่ วางนอกจอ
+    const container = document.createElement("div");
+    container.style.cssText = `
+      position: fixed; top: -99999px; left: -99999px;
+      width: ${A4_PX}px; background: #fff;
+      font-family: "Sarabun", serif;
+    `;
+    document.body.appendChild(container);
 
     try {
-      // สร้าง Clone เพื่อไม่ให้หน้าจอเดิมกระตุกหรือเปลี่ยนแปลง
-      const clone = originalPage.cloneNode(true);
-
-      clone.style.setProperty("position", "absolute", "important");
-      clone.style.setProperty("left", "-99999px", "important");
-      clone.style.setProperty("top", "0", "important");
-      clone.style.setProperty("width", "21cm", "important");
-      clone.style.setProperty("min-height", "29.7cm", "important");
-      clone.style.setProperty("padding", "2.8cm 2.2cm 2cm", "important");
-      clone.style.setProperty("margin", "0", "important");
-      clone.style.setProperty("box-shadow", "none", "important");
-      clone.style.setProperty("background", "#ffffff", "important");
-
-      const sigSection = clone.querySelector(".signature-section");
-      if (sigSection) {
-        sigSection.style.setProperty("margin-left", "5cm", "important");
-      }
-
-      const sigBox = clone.querySelector(".sig-box");
-      if (sigBox) {
-        sigBox.style.setProperty("width", "6cm", "important");
-        sigBox.style.setProperty("min-height", "1.1cm", "important");
-      }
-
-      const sigImg = clone.querySelector("#signaturePrev");
-      if (sigImg) {
-        sigImg.style.setProperty("max-width", "100%", "important");
-        sigImg.style.setProperty("max-height", "1.1cm", "important");
-        sigImg.style.setProperty("object-fit", "contain", "important");
-        sigImg.style.setProperty("display", "block", "important");
-      }
-
-      // ซ่อนเฉพาะใน clone
-      clone.querySelectorAll(".sig-placeholder, .bar").forEach((el) => {
-        el.style.display = "none";
-      });
-
-      clone.querySelectorAll("*").forEach((el) => {
-        const style = el.style;
-        if (style.color) style.color = "#1a1a1a";
-        if (style.backgroundColor) style.backgroundColor = "#ffffff";
-      });
-
-      document.body.appendChild(clone);
-
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const pdf   = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      const pages = document.querySelectorAll(".page");
 
-      const canvasImg = await html2canvas(clone, {
-        scale: 3.5,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        allowTaint: true,
-      });
+      for (let i = 0; i < pages.length; i++) {
+        // clone + override style เป็น A4 ทับ mobile style ทุกอย่าง
+        const clone = pages[i].cloneNode(true);
+        clone.style.cssText = `
+          width: ${A4_PX}px !important;
+          min-height: unset !important;
+          margin: 0 !important;
+          padding: 107px 84px !important;
+          background: #fff !important;
+          box-shadow: none !important;
+          position: static !important;
+          font-size: 15px !important;
+        `;
+        // ซ่อน placeholder และ bar
+        clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
 
-      const imgData = canvasImg.toDataURL("image/jpeg", 0.98);
-      const pdfWidth = 210;
-      const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
+        container.innerHTML = "";
+        container.appendChild(clone);
 
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
+        const cvs = await html2canvas(container, {
+          scale: 2, useCORS: true, logging: false,
+          backgroundColor: "#ffffff",
+          width: A4_PX,
+          windowWidth: A4_PX,
+        });
+
+        const imgData = cvs.toDataURL("image/jpeg", 0.95);
+        const imgH    = A4_MM_W * (cvs.height / cvs.width);
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, 0, A4_MM_W, Math.min(imgH, A4_MM_H));
+      }
+
       pdf.save("ใบสมัคร Fast Track.pdf");
-
       Swal.fire({
-        icon: "success",
-        title: "บันทึกสำเร็จ",
-        text: "บันทึกเรียบร้อย",
-        confirmButtonColor: "#1a5276",
-        timer: 2000,
-      }).then(() => location.reload());
+        icon: "success", title: "บันทึกสำเร็จ", text: "ไฟล์ PDF ถูกบันทึกแล้ว",
+        confirmButtonColor: "#1a5276", timer: 2500, timerProgressBar: true,
+      }).then(() => window.location.reload());
+
     } catch (err) {
-      console.error("❌ PDF Export Error:", err);
-
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        html: `
-          ไม่สามารถสร้าง PDF ได้<br>
-          <small style="color:#c0392b; font-size:0.9rem;">
-            ${err.message || err.toString()}
-          </small>
-        `,
-        confirmButtonColor: "#c0392b",
-        footer: "ลองรีโหลดหน้าแล้วลองใหม่อีกครั้ง",
-      });
+      Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาด", text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่", confirmButtonColor: "#c0392b" });
+      console.error(err);
     } finally {
-      // ลบ clone และคืนปุ่มเป็นปกติ
-      const cloneEl = document.querySelector(".page[style*='left: -99999px']");
-      if (cloneEl) cloneEl.remove();
+      document.body.removeChild(container);
+      btn.style.display = "flex";
       btn.disabled = false;
-      btn.innerHTML = originalHTML;
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> บันทึก PDF`;
     }
   };
 
