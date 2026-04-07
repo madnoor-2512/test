@@ -18,7 +18,7 @@
     <div style="display: flex; justify-content: flex-start; margin-bottom: 0.5cm; margin-top: -1cm;">
       <img src="TSU-LOGO.png" alt="TsuLogo" style="width: 50px; height: auto;">
         <div style="margin-left: 0.2cm;">
-            <p style="font-size: 0.9rem; margin:0; margin-top: 1.2cm;">สำนักงานบัณฑิตวิทยาลัย</p>
+            <p style="font-size: 0.9rem; margin:0; margin-top: 1.2cm;">บัณฑิตวิทยาลัย</p>
             <p style="font-size: 0.9rem;  margin:0;">มหาวิทยาลัยทักษิณ</p>
         </div>
     </div>
@@ -214,9 +214,9 @@
         </div>
 
         <div class="sig-date-row">
-          <input type="number" id="sigDay" name="sigDay" placeholder="วัน" style="width:1.2cm;" min="1" max="31">
+          <input type="number" id="sigDay" name="sigDay" placeholder="วันที่" style="width:1.2cm;" min="1" max="31">
           <span>/</span>
-          <input type="number" id="sigMonth" name="sigMonth" placeholder="เดือน" style="width:1.5cm;" min="1" max="12">
+          <input type="text" id="sigMonth" name="sigMonth" placeholder="เดือน" style="width:1.5cm;" pattern="^[ก-๙a-zA-Z\s]+$">
           <span>/</span>
           <input type="number" id="sigYear" name="sigYear" placeholder="ปี" style="width:2.2cm;" min="1900" max="2600">
         </div>

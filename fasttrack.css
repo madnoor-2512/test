@@ -5,6 +5,11 @@
   font-family: "Sarabun", serif;
 }
 
+:root {
+  --bs-body-color: #000 !important;
+  --bs-body-bg: #fff !important;
+}
+
 body {
   background-color: #ededed;
 }
@@ -481,12 +486,6 @@ input:focus ~ .bar::after {
     padding: 5rem 1rem 7rem 1rem !important;
     box-shadow: none !important;
   }
-/* 
-  .input {
-    width: 100% !important;
-    flex: 1 1 100% !important;
-    min-width: unset !important;
-  } */
 
   #saveBtn {
     position: fixed;
@@ -500,7 +499,7 @@ input:focus ~ .bar::after {
     font-size: 1rem;
     z-index: 9999;
   }
-  
+
   .sig-box {
     width: 100% !important;
     max-width: 100%;
