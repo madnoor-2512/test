@@ -488,10 +488,10 @@ input:focus ~ .bar::after {
     min-width: unset !important;
   }
 
-  .input[style*="max-width"] {
+  /* .input[style*="max-width"] {
     max-width: 100% !important;
     flex: 1 1 6rem !important;
-  }
+  } */
 
   #saveBtn {
     position: fixed;
