@@ -500,6 +500,7 @@ input:focus ~ .bar::after {
     font-size: 1rem;
     z-index: 9999;
   }
+  
   .sig-box {
     width: 100% !important;
     max-width: 100%;
@@ -507,6 +508,5 @@ input:focus ~ .bar::after {
 
   .signature-section {
     margin-left: 0 !important;
-    align-items: auto;
   }
 }
