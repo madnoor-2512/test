@@ -168,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==================== Export PDF ====================
-    // ==================== Export PDF (ปรับใหม่สำหรับมือถือ - ไม่กระตุก + เหมือนคอม) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) {
@@ -197,19 +196,34 @@ document.addEventListener("DOMContentLoaded", () => {
       // สร้าง Clone เพื่อไม่ให้หน้าจอเดิมกระตุกหรือเปลี่ยนแปลง
       const clone = originalPage.cloneNode(true);
 
-      // Force ให้เป็นขนาด A4 จริง (สำคัญมากสำหรับมือถือ)
-      clone.style.cssText = `
-        position: absolute !important;
-        left: -99999px !important;
-        top: 0 !important;
-        width: 21cm !important;
-        min-height: 29.7cm !important;
-        padding: 2.8cm 2.2cm 2cm !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        background: #ffffff !important;
-        font-family: "TH Sarabun New", "Sarabun", serif !important;
-      `;
+      clone.style.setProperty("position", "absolute", "important");
+      clone.style.setProperty("left", "-99999px", "important");
+      clone.style.setProperty("top", "0", "important");
+      clone.style.setProperty("width", "21cm", "important");
+      clone.style.setProperty("min-height", "29.7cm", "important");
+      clone.style.setProperty("padding", "2.8cm 2.2cm 2cm", "important");
+      clone.style.setProperty("margin", "0", "important");
+      clone.style.setProperty("box-shadow", "none", "important");
+      clone.style.setProperty("background", "#ffffff", "important");
+
+      const sigSection = clone.querySelector(".signature-section");
+      if (sigSection) {
+        sigSection.style.setProperty("margin-left", "5cm", "important");
+      }
+
+      const sigBox = clone.querySelector(".sig-box");
+      if (sigBox) {
+        sigBox.style.setProperty("width", "6cm", "important");
+        sigBox.style.setProperty("min-height", "1.1cm", "important");
+      }
+
+      const sigImg = clone.querySelector("#signaturePrev");
+      if (sigImg) {
+        sigImg.style.setProperty("max-width", "100%", "important");
+        sigImg.style.setProperty("max-height", "1.1cm", "important");
+        sigImg.style.setProperty("object-fit", "contain", "important");
+        sigImg.style.setProperty("display", "block", "important");
+      }
 
       // ซ่อนเฉพาะใน clone (หน้าเดิมไม่ถูกแตะ)
       clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => {
@@ -226,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const canvasImg = await html2canvas(clone, {
-        scale: 3.5,                    // ความคมชัดสูง (มือถือก็ชัด)
+        scale: 3.5,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
