@@ -263,12 +263,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }).then(() => location.reload());
 
     } catch (err) {
-      console.error(err);
+      console.error("❌ PDF Export Error:", err);
+
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่",
+        html: `
+          ไม่สามารถสร้าง PDF ได้<br>
+          <small style="color:#c0392b; font-size:0.9rem;">
+            ${err.message || err.toString()}
+          </small>
+        `,
         confirmButtonColor: "#c0392b",
+        footer: "ลองรีโหลดหน้าแล้วลองใหม่ หรือบอก developer ด้วยข้อความด้านบน",
       });
     } finally {
       // ลบ clone และคืนปุ่มเป็นปกติ
