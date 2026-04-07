@@ -482,6 +482,17 @@ input:focus ~ .bar::after {
     box-shadow: none !important;
   }
 
+  .input {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-width: unset !important;
+  }
+
+  .input[style*="max-width"] {
+    max-width: 100% !important;
+    flex: 1 1 6rem !important;
+  }
+
   #saveBtn {
     position: fixed;
     justify-content: center;
@@ -498,7 +509,9 @@ input:focus ~ .bar::after {
     width: 100% !important;
     max-width: 100%;
   }
+
   .signature-section {
     margin-left: 0 !important;
+    align-items: auto;
   }
 }
