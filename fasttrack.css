@@ -481,16 +481,11 @@ input:focus ~ .bar::after {
     padding: 5rem 1rem 7rem 1rem !important;
     box-shadow: none !important;
   }
-
+/* 
   .input {
     width: 100% !important;
     flex: 1 1 100% !important;
     min-width: unset !important;
-  }
-
-  /* .input[style*="max-width"] {
-    max-width: 100% !important;
-    flex: 1 1 6rem !important;
   } */
 
   #saveBtn {
