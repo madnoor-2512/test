@@ -413,7 +413,6 @@ input:focus ~ .bar::after {
   bottom: 2cm;
   right: 2cm;
   z-index: 1000;
-  font-family: "TH Sarabun New", "Sarabun", serif;
   font-size: 1rem;
   padding: 0.35cm 0.8cm;
   background: #1a5276;
