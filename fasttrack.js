@@ -238,12 +238,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
-      pdf.save("ใบสมัคร_Fast_Track.pdf");
+      pdf.save("ใบสมัคร Fast Track.pdf");
 
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
-        text: "PDF ออกมาเหมือนบนคอมพิวเตอร์แล้ว",
+        text: "บันทึกเรียบร้อย",
         confirmButtonColor: "#1a5276",
         timer: 2000,
       }).then(() => location.reload());
