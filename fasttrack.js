@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </small>
         `,
         confirmButtonColor: "#c0392b",
-        footer: "ลองรีโหลดหน้าแล้วลองใหม่ หรือบอก developer ด้วยข้อความด้านบน",
+        footer: "ลองรีโหลดหน้าแล้วลองใหม่อีกครั้ง",
       });
     } finally {
       // ลบ clone และคืนปุ่มเป็นปกติ
