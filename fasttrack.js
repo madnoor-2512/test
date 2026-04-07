@@ -225,9 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
         sigImg.style.setProperty("display", "block", "important");
       }
 
-      // ซ่อนเฉพาะใน clone (หน้าเดิมไม่ถูกแตะ)
-      clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => {
+      // ซ่อนเฉพาะใน clone
+      clone.querySelectorAll(".sig-placeholder, .bar").forEach((el) => {
         el.style.display = "none";
+      });
+
+      clone.querySelectorAll("*").forEach((el) => {
+        const style = el.style;
+        if (style.color) style.color = "#1a1a1a";
+        if (style.backgroundColor) style.backgroundColor = "#ffffff";
       });
 
       document.body.appendChild(clone);
@@ -261,7 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonColor: "#1a5276",
         timer: 2000,
       }).then(() => location.reload());
-
     } catch (err) {
       console.error("❌ PDF Export Error:", err);
 
@@ -281,7 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
       // ลบ clone และคืนปุ่มเป็นปกติ
       const cloneEl = document.querySelector(".page[style*='left: -99999px']");
       if (cloneEl) cloneEl.remove();
-
       btn.disabled = false;
       btn.innerHTML = originalHTML;
     }

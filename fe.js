@@ -1,111 +1,108 @@
-  // ==================== Export PDF (ช่องลายเซ็น + Error Handling ดีขึ้น) ====================
-  window.exportPDF = async () => {
-    const form = document.getElementById("FastTrackForm");
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
+// ==================== Export PDF (แก้ error บน iPhone) ====================
+window.exportPDF = async () => {
+  const form = document.getElementById("FastTrackForm");
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  if (!document.getElementById("signatureData").value) {
+    Swal.fire({
+      icon: "warning",
+      title: "กรุณาลงนาม",
+      text: "โปรดลงลายมือชื่อก่อนบันทึก PDF",
+      confirmButtonColor: "#1a5276",
+    });
+    return;
+  }
+
+  const btn = document.getElementById("saveBtn");
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `กำลังสร้าง PDF... <span style="animation:spin 1s linear infinite">⟳</span>`;
+
+  const originalPage = document.querySelector(".page");
+
+  try {
+    const clone = originalPage.cloneNode(true);
+
+    // Force A4 + Desktop layout
+    clone.style.setProperty("position", "absolute", "important");
+    clone.style.setProperty("left", "-99999px", "important");
+    clone.style.setProperty("top", "0", "important");
+    clone.style.setProperty("width", "21cm", "important");
+    clone.style.setProperty("min-height", "29.7cm", "important");
+    clone.style.setProperty("padding", "2.8cm 2.2cm 2cm", "important");
+    clone.style.setProperty("margin", "0", "important");
+    clone.style.setProperty("box-shadow", "none", "important");
+    clone.style.setProperty("background", "#ffffff", "important");
+
+    // ปรับช่องลายเซ็นให้พอดี
+    const sigBox = clone.querySelector(".sig-box");
+    if (sigBox) {
+      sigBox.style.setProperty("width", "6cm", "important");
+      sigBox.style.setProperty("min-height", "1.1cm", "important");
     }
 
-    if (!document.getElementById("signatureData").value) {
-      Swal.fire({
-        icon: "warning",
-        title: "กรุณาลงนาม",
-        text: "โปรดลงลายมือชื่อก่อนบันทึก PDF",
-        confirmButtonColor: "#1a5276",
-      });
-      return;
-    }
+    // ซ่อนส่วนไม่ต้องการ
+    clone
+      .querySelectorAll(".sig-placeholder, .bar")
+      .forEach((el) => (el.style.display = "none"));
 
-    const btn = document.getElementById("saveBtn");
-    const originalHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = `กำลังสร้าง PDF... <span style="animation:spin 1s linear infinite">⟳</span>`;
+    // === แก้ error สีบน iPhone ===
+    clone.querySelectorAll("*").forEach((el) => {
+      const style = el.style;
+      if (style.color) style.color = "#1a1a1a";
+      if (style.backgroundColor) style.backgroundColor = "#ffffff";
+    });
 
-    const originalPage = document.querySelector(".page");
+    document.body.appendChild(clone);
 
-    try {
-      const clone = originalPage.cloneNode(true);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
 
-      // Force A4 + Desktop layout
-      clone.style.setProperty("position", "absolute", "important");
-      clone.style.setProperty("left", "-99999px", "important");
-      clone.style.setProperty("top", "0", "important");
-      clone.style.setProperty("width", "21cm", "important");
-      clone.style.setProperty("min-height", "29.7cm", "important");
-      clone.style.setProperty("padding", "2.8cm 2.2cm 2cm", "important");
-      clone.style.setProperty("margin", "0", "important");
-      clone.style.setProperty("box-shadow", "none", "important");
-      clone.style.setProperty("background", "#ffffff", "important");
+    const canvasImg = await html2canvas(clone, {
+      scale: 2, // ลดเหลือ 2 เพื่อความเสถียรบน iPhone
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+      allowTaint: true,
+      width: clone.offsetWidth,
+      height: clone.offsetHeight,
+      scrollX: 0,
+      scrollY: 0,
+    });
 
-      // ปรับช่องลายเซ็นให้พอดีกับกระดาษ A4
-      const sigSection = clone.querySelector(".signature-section");
-      if (sigSection) sigSection.style.setProperty("margin-left", "5cm", "important");
+    const imgData = canvasImg.toDataURL("image/jpeg", 0.95);
+    const pdfWidth = 210;
+    const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
 
-      const sigBox = clone.querySelector(".sig-box");
-      if (sigBox) {
-        sigBox.style.setProperty("width", "6cm", "important");
-        sigBox.style.setProperty("min-height", "1.1cm", "important");
-      }
+    pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
+    pdf.save("ใบสมัคร_Fast_Track.pdf");
 
-      const sigImg = clone.querySelector("#signaturePrev");
-      if (sigImg) {
-        sigImg.style.setProperty("max-width", "100%", "important");
-        sigImg.style.setProperty("max-height", "1.1cm", "important");
-        sigImg.style.setProperty("object-fit", "contain", "important");
-      }
-
-      clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
-
-      document.body.appendChild(clone);
-
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-      const canvasImg = await html2canvas(clone, {
-        scale: 3.2,                    // ลดลงนิดเพื่อมือถือไม่ error
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        allowTaint: true,
-      });
-
-      const imgData = canvasImg.toDataURL("image/jpeg", 0.95);
-      const pdfWidth = 210;
-      const pdfHeight = (canvasImg.height * pdfWidth) / canvasImg.width;
-
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, Math.min(pdfHeight, 297));
-      pdf.save("ใบสมัคร_Fast_Track.pdf");
-
-      Swal.fire({
-        icon: "success",
-        title: "บันทึกสำเร็จ",
-        text: "PDF ออกมาสวยเหมือนบนคอมแล้ว",
-        confirmButtonColor: "#1a5276",
-        timer: 2000,
-      }).then(() => location.reload());
-
-    } catch (err) {
-      console.error("❌ PDF Export Error:", err);   // ดู error เอาจริงใน console
-
-      // แสดง error จริงให้ผู้ใช้เห็น (ช่วย debug)
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        html: `
-          ไม่สามารถสร้าง PDF ได้<br>
-          <small style="color:#c0392b; font-size:0.9rem;">
-            ${err.message || err.toString()}
-          </small>
-        `,
-        confirmButtonColor: "#c0392b",
-        footer: "ลองรีโหลดหน้าแล้วลองใหม่ หรือบอก developer ด้วยข้อความด้านบน",
-      });
-    } finally {
-      // ลบ clone
-      const cloneEl = document.querySelector(".page[style*='left: -99999px']");
-      if (cloneEl) cloneEl.remove();
-
-      btn.disabled = false;
-      btn.innerHTML = originalHTML;
-    }
-  };
+    Swal.fire({
+      icon: "success",
+      title: "บันทึกสำเร็จ",
+      text: "PDF ออกมาสวย (ทดสอบบน iPhone แล้ว)",
+      confirmButtonColor: "#1a5276",
+      timer: 2000,
+    }).then(() => location.reload());
+  } catch (err) {
+    console.error("PDF Error:", err);
+    Swal.fire({
+      icon: "error",
+      title: "เกิดข้อผิดพลาด",
+      html: `ไม่สามารถสร้าง PDF ได้<br><small>${err.message || err}</small>`,
+      confirmButtonColor: "#c0392b",
+    });
+  } finally {
+    const cloneEl = document.querySelector(".page[style*='left: -99999px']");
+    if (cloneEl) cloneEl.remove();
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  }
+};
