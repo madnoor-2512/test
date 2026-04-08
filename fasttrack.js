@@ -189,20 +189,20 @@ document.addEventListener("DOMContentLoaded", () => {
             font-size: 15px !important;
           `;
           clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
-          const style = window.getComputedStyle(el);
-
-          // clone.querySelectorAll("*").forEach(el => {
           // const style = window.getComputedStyle(el);
-          //   if (
-          //     style.color.includes("color(") ||
-          //     style.backgroundColor.includes("color(")
-          //   ) {
-          //     console.warn("❌ BAD COLOR:", el, style.color);
 
-          //     el.style.color = "#000";
-          //     el.style.backgroundColor = "#fff";
-          //   }
-          // });
+          clone.querySelectorAll("*").forEach(el => {
+          const style = window.getComputedStyle(el);
+            if (
+              style.color.includes("color(") ||
+              style.backgroundColor.includes("color(")
+            ) {
+              console.warn("❌ BAD COLOR:", el, style.color);
+
+              el.style.color = "#000";
+              el.style.backgroundColor = "#fff";
+            }
+          });
 
           container.innerHTML = "";
           container.appendChild(clone);
