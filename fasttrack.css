@@ -453,7 +453,6 @@ input:focus ~ .bar::after {
   margin: 0;
 }
 
-/* ====================== PRINT STYLE (สำคัญสำหรับ iPhone) ====================== */
 /* ==================== PRINT STYLE ==================== */
 @media print {
   body { background: none !important; }

@@ -189,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
             font-size: 15px !important;
           `;
           clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
-          // const style = window.getComputedStyle(el);
 
           clone.querySelectorAll("*").forEach(el => {
           const style = window.getComputedStyle(el);
