@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ==================== Title Other Input ====================
   const radios = document.querySelectorAll('input[name="title"]');
   const otherInput = document.getElementById("titleOtherText");
 
@@ -15,49 +16,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // ==================== Phone Number Filter ====================
   document.getElementById("phone").addEventListener("input", (e) => {
     e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
   });
 
+  // ==================== Contact Checkboxes ====================
   const checkboxes = document.querySelectorAll('input[name="contact"]');
   const contactInput = document.getElementById("contactId");
   checkboxes.forEach((cb) => {
     cb.addEventListener("change", () => {
       const anyChecked = [...checkboxes].some((c) => c.checked);
-
       contactInput.disabled = !anyChecked;
       contactInput.required = anyChecked;
-
-      if (!anyChecked) {
-        contactInput.value = "";
-      }
+      if (!anyChecked) contactInput.value = "";
     });
   });
 
   // ==================== Custom Checkmarks & Radios ====================
   function initCustomMarks() {
-    const allInputs = document.querySelectorAll(
-      'input[type="radio"], input[type="checkbox"]',
-    );
-
+    const allInputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
     allInputs.forEach((input) => {
       const mark = input.nextElementSibling;
       if (!mark) return;
-
-      // Initial state
       if (input.checked) mark.classList.add("checked");
-
       input.addEventListener("change", () => {
-        // Radio group
         if (input.type === "radio") {
-          document
-            .querySelectorAll(`input[name="${input.name}"]`)
-            .forEach((radio) => {
-              const rMark = radio.nextElementSibling;
-              if (rMark) rMark.classList.remove("checked");
-            });
+          document.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+            const rMark = radio.nextElementSibling;
+            if (rMark) rMark.classList.remove("checked");
+          });
         }
-        // Checkbox / Radio toggle
         mark.classList.toggle("checked", input.checked);
       });
     });
@@ -68,29 +57,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function toggleRegInputs() {
     const incomplete = document.getElementById("regIncomplete").checked;
     const other = document.getElementById("regOther").checked;
-
     const incInput = document.getElementById("incompleteReason");
     const othInput = document.getElementById("otherReason");
 
-    incInput.disabled = !incomplete;
-    incInput.required = incomplete;
+    incInput.disabled = !incomplete; incInput.required = incomplete;
     if (!incomplete) incInput.value = "";
 
-    othInput.disabled = !other;
-    othInput.required = other;
+    othInput.disabled = !other; othInput.required = other;
     if (!other) othInput.value = "";
   }
 
-  document
-    .getElementById("regComplete")
-    .addEventListener("change", toggleRegInputs);
-  document
-    .getElementById("regIncomplete")
-    .addEventListener("change", toggleRegInputs);
-  document
-    .getElementById("regOther")
-    .addEventListener("change", toggleRegInputs);
-  toggleRegInputs(); // Initial call
+  document.getElementById("regComplete").addEventListener("change", toggleRegInputs);
+  document.getElementById("regIncomplete").addEventListener("change", toggleRegInputs);
+  document.getElementById("regOther").addEventListener("change", toggleRegInputs);
+  toggleRegInputs();
 
   // ==================== Signature Canvas ====================
   const canvas = document.getElementById("signatureCanvas");
@@ -110,143 +90,167 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function startDraw(e) {
-    e.preventDefault();
-    drawing = true;
-    const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-  }
-
-  function draw(e) {
-    if (!drawing) return;
-    e.preventDefault();
-    const p = getPos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-  }
-
-  function stopDraw() {
-    drawing = false;
-  }
+  function startDraw(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function draw(e) { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+  function stopDraw() { drawing = false; }
 
   canvas.addEventListener("mousedown", startDraw);
   canvas.addEventListener("mousemove", draw);
   canvas.addEventListener("mouseup", stopDraw);
   canvas.addEventListener("mouseleave", stopDraw);
-
   canvas.addEventListener("touchstart", startDraw);
   canvas.addEventListener("touchmove", draw);
   canvas.addEventListener("touchend", stopDraw);
 
   window.clearCanvas = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  window.openSignatureModal = () => {
-    clearCanvas();
-    document.getElementById("signatureModal").classList.add("open");
-  };
-
-  window.closeSignatureModal = () => {
-    document.getElementById("signatureModal").classList.remove("open");
-  };
-
+  window.openSignatureModal = () => { clearCanvas(); document.getElementById("signatureModal").classList.add("open"); };
+  window.closeSignatureModal = () => { document.getElementById("signatureModal").classList.remove("open"); };
   window.saveSignature = () => {
     const dataURL = canvas.toDataURL("image/png", 1.0);
     document.getElementById("signatureData").value = dataURL;
-
     const img = document.getElementById("signaturePrev");
-    img.src = dataURL;
-    img.style.display = "block";
+    img.src = dataURL; img.style.display = "block";
     document.getElementById("placeholderText").style.display = "none";
-
     closeSignatureModal();
   };
 
-  // Close modal when click outside
   document.getElementById("signatureModal").addEventListener("click", (e) => {
     if (e.target.id === "signatureModal") closeSignatureModal();
   });
 
-    // ==================== Export PDF (A4 clone — works on mobile & desktop) ====================
+  // ==================== Export PDF (Hybrid: Safari → Print / อื่น ๆ → PDF) ====================
   window.exportPDF = async () => {
     const form = document.getElementById("FastTrackForm");
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
     if (!document.getElementById("signatureData").value) {
-      Swal.fire({ icon: "warning", title: "กรุณาลงนาม", text: "โปรดลงลายมือชื่อก่อนบันทึก PDF", confirmButtonColor: "#1a5276" });
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาลงนาม",
+        text: "โปรดลงลายมือชื่อก่อนบันทึก",
+        confirmButtonColor: "#1a5276",
+      });
       return;
     }
 
     const btn = document.getElementById("saveBtn");
-    btn.disabled = true;
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> กำลังสร้าง PDF...`;
-    btn.style.display = "none";
+    const originalHTML = btn.innerHTML;
 
-    // A4 @ 96dpi = 794px — render ขนาดนี้เสมอไม่ว่าจะดูบนอะไร
-    const A4_PX   = 794;
-    const A4_MM_W = 210;
-    const A4_MM_H = 297;
+    // ตรวจสอบว่าเป็น Safari หรือไม่
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-    // off-screen container ขนาด A4 คงที่ วางนอกจอ
-    const container = document.createElement("div");
-    container.style.cssText = `
-      position: fixed; top: -99999px; left: -99999px;
-      width: ${A4_PX}px; background: #fff;
-      font-family: "Sarabun", serif;
-    `;
-    document.body.appendChild(container);
+    if (isSafari) {
+      // ==================== Safari → ใช้ window.print() ====================
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg> กำลังเตรียมพิมพ์...
+      `;
 
-    try {
-      const { jsPDF } = window.jspdf;
-      const pdf   = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-      const pages = document.querySelectorAll(".page");
+      await new Promise(r => setTimeout(r, 150));
+      window.print();
+      setTimeout(() => window.location.reload(), 500);
 
-      for (let i = 0; i < pages.length; i++) {
-        // clone + override style เป็น A4 ทับ mobile style ทุกอย่าง
-        const clone = pages[i].cloneNode(true);
-        clone.style.cssText = `
-          width: ${A4_PX}px !important;
-          min-height: unset !important;
-          margin: 0 !important;
-          padding: 107px 84px !important;
-          background: #fff !important;
-          box-shadow: none !important;
-          position: static !important;
-          font-size: 15px !important;
-        `;
-        // ซ่อน placeholder และ bar
-        clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
-
-        container.innerHTML = "";
-        container.appendChild(clone);
-
-        const cvs = await html2canvas(container, {
-          scale: 2, useCORS: true, logging: false,
-          backgroundColor: "#ffffff",
-          width: A4_PX,
-          windowWidth: A4_PX,
-        });
-
-        const imgData = cvs.toDataURL("image/jpeg", 0.95);
-        const imgH    = A4_MM_W * (cvs.height / cvs.width);
-        if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, 0, A4_MM_W, Math.min(imgH, A4_MM_H));
-      }
-
-      pdf.save("ใบสมัคร Fast Track.pdf");
-      Swal.fire({
-        icon: "success", title: "บันทึกสำเร็จ", text: "ไฟล์ PDF ถูกบันทึกแล้ว",
-        confirmButtonColor: "#1a5276", timer: 2500, timerProgressBar: true,
-      }).then(() => window.location.reload());
-
-    } catch (err) {
-      Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาด", text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่", confirmButtonColor: "#c0392b" });
-      console.error(err);
-    } finally {
-      document.body.removeChild(container);
-      btn.style.display = "flex";
       btn.disabled = false;
-      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> บันทึก PDF`;
+      btn.innerHTML = originalHTML;
+    } else {
+      // ==================== อื่น ๆ → ใช้ html2canvas + jsPDF ====================
+      btn.disabled = true;
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> กำลังสร้าง PDF...`;
+      btn.style.display = "none";
+
+      const A4_PX = 794;
+      const A4_MM_W = 210;
+      const A4_MM_H = 297;
+
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = `position:absolute;top:0;left:0;width:${A4_PX}px;overflow:hidden;height:1px;opacity:0;pointer-events:none;z-index:-1;`;
+      const container = document.createElement("div");
+      container.style.cssText = `width:${A4_PX}px;background:#fff;font-family:"Sarabun",serif;`;
+      wrapper.appendChild(container);
+      document.body.appendChild(wrapper);
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+        const pages = document.querySelectorAll(".page");
+
+        for (let i = 0; i < pages.length; i++) {
+          const clone = pages[i].cloneNode(true);
+          clone.style.cssText = `
+            width: ${A4_PX}px !important;
+            min-height: unset !important;
+            margin: 0 !important;
+            padding: 107px 84px !important;
+            background: #fff !important;
+            box-shadow: none !important;
+            position: static !important;
+            font-size: 15px !important;
+          `;
+          clone.querySelectorAll(".sig-placeholder, .bar").forEach(el => el.style.display = "none");
+          const style = window.getComputedStyle(el);
+
+          clone.querySelectorAll("*").forEach(el => {
+          const style = window.getComputedStyle(el);
+            if (
+              style.color.includes("color(") ||
+              style.backgroundColor.includes("color(")
+            ) {
+              console.warn("❌ BAD COLOR:", el, style.color);
+
+              el.style.color = "#000";
+              el.style.backgroundColor = "#fff";
+            }
+          });
+
+          container.innerHTML = "";
+          container.appendChild(clone);
+
+          const cvs = await html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: "#ffffff",
+            width: A4_PX,
+            windowWidth: A4_PX,
+            scrollX: 0,
+            scrollY: 0,
+          });
+
+          const imgData = cvs.toDataURL("image/jpeg", 0.92);
+          const imgH = A4_MM_W * (cvs.height / cvs.width);
+          if (i > 0) pdf.addPage();
+          pdf.addImage(imgData, "JPEG", 0, 0, A4_MM_W, Math.min(imgH, A4_MM_H));
+        }
+
+        const pdfBlob = pdf.output("blob");
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = "ใบสมัคร Fast Track.pdf";
+        a.click();
+        URL.revokeObjectURL(blobUrl);
+
+        Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: "ไฟล์ PDF ถูกบันทึกแล้ว",
+          confirmButtonColor: "#1a5276",
+          timer: 2500,
+          timerProgressBar: true,
+        }).then(() => window.location.reload());
+
+      } catch (err) {
+        Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาด", text: "ไม่สามารถสร้าง PDF ได้ กรุณาลองใหม่", confirmButtonColor: "#c0392b" });
+        console.error(err);
+      } finally {
+        document.body.removeChild(wrapper);
+        btn.style.display = "flex";
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
     }
   };
 

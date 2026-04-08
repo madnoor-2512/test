@@ -470,10 +470,12 @@ input:focus ~ .bar::after {
   .page {
     margin: 0 !important;
     width: 21cm !important;
+    height: 29.7cm !important;
     min-height: 29.7cm !important;
     padding: 2.54cm 2cm !important;
     box-shadow: none !important;
     background: white !important;
+    overflow: hidden !important;
   }
 
   .sig-box {
