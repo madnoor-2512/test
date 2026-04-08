@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await new Promise(r => setTimeout(r, 150));
       window.print();
-      setTimeout(() => window.location.reload(), 500);
+      // setTimeout(() => window.location.reload(), 5000);
 
       btn.disabled = false;
       btn.innerHTML = originalHTML;
